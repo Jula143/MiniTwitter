@@ -1,1 +1,1 @@
-# Projekt-systemy-rozproszone
+# MiniTwitter
