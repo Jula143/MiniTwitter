@@ -41,6 +41,7 @@ class MiniTwitterServicer(object):
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
+    
 
 
 def add_MiniTwitterServicer_to_server(servicer, server):

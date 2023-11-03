@@ -3,28 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <title>Mini Twitter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Welcome to Mini Twitter</h1>
-    <form action="/send" method="post">
-        <label for="username">Username:</label>
-        <input type="text" name="username" required>
-        <label for="message">Message:</label>
-        <input type="text" name="message" required>
-        <input type="submit" value="Send Message">
-    </form>
-    <hr>
-    <form action="/" method="get">
-        <label for="num">Number of Messages:</label>
-        <input type="number" name="num" value="{{ request.args.get('num') }}" min="1">
-        <input type="submit" value="Refresh">
-    </form>
-    <ul>
-        {% for message in messages %}
-            <li>
-                {{ message.creation_time.ToDatetime().strftime('%Y-%m-%d %H:%M:%S') }} - {{ message.sender }}: {{ message.text }}
-            </li>
-        {% endfor %}
-    </ul>
+    <div class="container">
+        <h1>Welcome to Mini Twitter</h1>
+        {% if not session.logged_in %}
+            <form action="/login" method="post">
+                <label for="username">Username:</label>
+                <input type="text" name="username" required>
+                <input type="submit" value="Log In">
+            </form>
+        {% else %}
+            <form action="/send" method="post" enctype="multipart/form-data">
+                <label for="message">Message:</label>
+                <input type="text" name="message" required>
+                <input type="file" name="file" accept="image/*, video/*" /> <!-- Add file input for photos and videos -->
+                <input type="submit" value="Send Message">
+                <button type="button" id="emoji-picker-button">😀</button> <!-- Add emoji picker button -->
+            </form>
+            <hr>
+            <ul>
+                {% for message in messages %}
+                    <li class="tweet">
+                        <span class="timestamp">
+                            {{ message.creation_time.ToDatetime().strftime('%Y-%m-%d %H:%M:%S') }}
+                        </span>
+                        - <span class="username">{{ message.sender }}</span>: {{ message.text }}
+                        
+                        {% if message.file_attachment %}
+                            <div class="message-file">
+                                {% if message.file_attachment.file_type == 'image/jpeg' or message.file_attachment.file_type == 'image/png' %}
+                                <img src="data:{{ message.file_attachment.file_type }};base64,{{ message.file_attachment.file_data|b64encode }}" alt="Image">
+                                {% elif message.file_attachment.file_type == 'video/mp4' %}
+                                    <video controls>
+                                        <source src="data:{{ message.file_attachment.file_type }};base64,{{ message.file_attachment.file_data|b64encode }}" type="video/mp4">
+                                    </video>
+                                {% elif message.file_attachment.file_type.startswith('audio/') %}
+                                    <audio controls>
+                                        <source src="data:{{ message.file_attachment.file_type }};base64,{{ message.file_attachment.file_data|b64encode }}" type="{{ message.file_attachment.file_type }}">
+                                    </audio>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+            <a href="/logout">Logout</a>
+        {% endif %}
+    </div>
 </body>
 </html>

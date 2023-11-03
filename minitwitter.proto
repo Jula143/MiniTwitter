@@ -9,7 +9,14 @@ message Message {
     string text = 1;
     string sender = 2;
     google.protobuf.Timestamp creation_time = 3;
+    FileAttachment file_attachment = 4; 
     // add more fields like sender, timestamp, etc. 
+}
+
+message FileAttachment {
+    string file_name = 1;
+    string file_type = 2;
+    bytes file_data = 3;
 }
 
 message GetMessagesRequest {
