@@ -13,6 +13,7 @@ class MiniTwitterServicer(minitwitter_pb2_grpc.MiniTwitterServicer):
 
     def GetMessages(self, request, context):
         response = minitwitter_pb2.GetMessagesResponse(messages=self.messages[-request.n:])
+        print(response)
         return response
 
 def serve():

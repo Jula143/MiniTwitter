@@ -6,6 +6,7 @@ package client_message;
 
 message Message {
     string text = 1;
+    string sender = 2;
     // add more fields like sender, timestamp, etc. 
 }
 
