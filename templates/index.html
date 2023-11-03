@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mini Twitter</title>
+</head>
+<body>
+    <h1>Welcome to Mini Twitter</h1>
+    <form action="/send" method="post">
+        <label for="username">Username:</label>
+        <input type="text" name="username" required>
+        <label for="message">Message:</label>
+        <input type="text" name="message" required>
+        <input type="submit" value="Send Message">
+    </form>
+    <hr>
+    <form action="/" method="get">
+        <label for="num">Number of Messages:</label>
+        <input type="number" name="num" value="{{ request.args.get('num') }}" min="1">
+        <input type="submit" value="Refresh">
+    </form>
+    <ul>
+        {% for message in messages %}
+            <li>
+                {{ message.creation_time.ToDatetime().strftime('%Y-%m-%d %H:%M:%S') }} - {{ message.sender }}: {{ message.text }}
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
