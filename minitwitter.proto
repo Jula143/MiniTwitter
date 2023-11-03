@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package client_message;
+
+message Message {
+    string text = 1;
+    // add more fields like sender, timestamp, etc. 
+}
+
+message GetMessagesRequest {
+    int32 n = 1;
+}
+
+message GetMessagesResponse {
+    repeated Message messages = 1;
+}
+
+service MiniTwitter {
+    rpc SendMessage(Message) returns (google.protobuf.Empty);
+    rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
+}
