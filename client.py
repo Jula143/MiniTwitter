@@ -23,7 +23,7 @@ def run():
         messages = get_messages(stub, int(num))
         print("Latest Messages:")
         for message in messages:
-            print(message.text)
+            print(message.sender + ": " + message.text)
 
 
 if __name__ == '__main__':
