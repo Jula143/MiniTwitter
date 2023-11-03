@@ -12,24 +12,27 @@ _sym_db = _symbol_database.Default()
 
 
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
-from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11minitwitter.proto\x12\x0e\x63lient_message\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x93\x01\n\x07Message\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x0e\n\x06sender\x18\x02 \x01(\t\x12\x31\n\rcreation_time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x37\n\x0f\x66ile_attachment\x18\x04 \x01(\x0b\x32\x1e.client_message.FileAttachment\"I\n\x0e\x46ileAttachment\x12\x11\n\tfile_name\x18\x01 \x01(\t\x12\x11\n\tfile_type\x18\x02 \x01(\t\x12\x11\n\tfile_data\x18\x03 \x01(\x0c\"\x1f\n\x12GetMessagesRequest\x12\t\n\x01n\x18\x01 \x01(\x05\"@\n\x13GetMessagesResponse\x12)\n\x08messages\x18\x01 \x03(\x0b\x32\x17.client_message.Message2\xa5\x01\n\x0bMiniTwitter\x12>\n\x0bSendMessage\x12\x17.client_message.Message\x1a\x16.google.protobuf.Empty\x12V\n\x0bGetMessages\x12\".client_message.GetMessagesRequest\x1a#.client_message.GetMessagesResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11minitwitter.proto\x12\x0bminitwitter\x1a\x1bgoogle/protobuf/empty.proto\"\x8d\x01\n\x07Message\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x0e\n\x06sender\x18\x02 \x01(\t\x12\x15\n\rcreation_time\x18\x03 \x01(\t\x12\x39\n\x0f\x66ile_attachment\x18\x04 \x01(\x0b\x32\x1b.minitwitter.FileAttachmentH\x00\x88\x01\x01\x42\x12\n\x10_file_attachment\"_\n\x0e\x46ileAttachment\x12\x11\n\tfile_name\x18\x01 \x01(\t\x12\x11\n\tfile_data\x18\x02 \x01(\x0c\x12\x11\n\tfile_type\x18\x03 \x01(\t\x12\x14\n\x0c\x66ile_data_id\x18\x04 \x01(\t\"\x1f\n\x12GetMessagesRequest\x12\t\n\x01n\x18\x01 \x01(\x05\"=\n\x13GetMessagesResponse\x12&\n\x08messages\x18\x01 \x03(\x0b\x32\x14.minitwitter.Message\"6\n\x0e\x41\x64\x64LikeRequest\x12\x12\n\nmessage_id\x18\x01 \x01(\t\x12\x10\n\x08username\x18\x02 \x01(\t\"G\n\x11\x41\x64\x64\x43ommentRequest\x12\x12\n\nmessage_id\x18\x01 \x01(\t\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x0c\n\x04text\x18\x03 \x01(\t2\xa2\x02\n\x0bMiniTwitter\x12;\n\x0bSendMessage\x12\x14.minitwitter.Message\x1a\x16.google.protobuf.Empty\x12P\n\x0bGetMessages\x12\x1f.minitwitter.GetMessagesRequest\x1a .minitwitter.GetMessagesResponse\x12>\n\x07\x41\x64\x64Like\x12\x1b.minitwitter.AddLikeRequest\x1a\x16.google.protobuf.Empty\x12\x44\n\nAddComment\x12\x1e.minitwitter.AddCommentRequest\x1a\x16.google.protobuf.Emptyb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'minitwitter_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_MESSAGE']._serialized_start=100
-  _globals['_MESSAGE']._serialized_end=247
-  _globals['_FILEATTACHMENT']._serialized_start=249
-  _globals['_FILEATTACHMENT']._serialized_end=322
-  _globals['_GETMESSAGESREQUEST']._serialized_start=324
-  _globals['_GETMESSAGESREQUEST']._serialized_end=355
-  _globals['_GETMESSAGESRESPONSE']._serialized_start=357
-  _globals['_GETMESSAGESRESPONSE']._serialized_end=421
-  _globals['_MINITWITTER']._serialized_start=424
-  _globals['_MINITWITTER']._serialized_end=589
+  _globals['_MESSAGE']._serialized_start=64
+  _globals['_MESSAGE']._serialized_end=205
+  _globals['_FILEATTACHMENT']._serialized_start=207
+  _globals['_FILEATTACHMENT']._serialized_end=302
+  _globals['_GETMESSAGESREQUEST']._serialized_start=304
+  _globals['_GETMESSAGESREQUEST']._serialized_end=335
+  _globals['_GETMESSAGESRESPONSE']._serialized_start=337
+  _globals['_GETMESSAGESRESPONSE']._serialized_end=398
+  _globals['_ADDLIKEREQUEST']._serialized_start=400
+  _globals['_ADDLIKEREQUEST']._serialized_end=454
+  _globals['_ADDCOMMENTREQUEST']._serialized_start=456
+  _globals['_ADDCOMMENTREQUEST']._serialized_end=527
+  _globals['_MINITWITTER']._serialized_start=530
+  _globals['_MINITWITTER']._serialized_end=820
 # @@protoc_insertion_point(module_scope)

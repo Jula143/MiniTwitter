@@ -7,50 +7,66 @@
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to Mini Twitter</h1>
+        <div class="header">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Mini Twitter Logo" class="logo">
+            <a href="#">Home</a>
+            <a href="#">Profile</a>
+            <a href="#">Notifications</a>
+            <a href="#">Messages</a>
+            <a href="#">More</a>
+        </div>
         {% if not session.logged_in %}
-            <form action="/login" method="post">
+            <form class="login-form" action="/login" method="post">
                 <label for="username">Username:</label>
                 <input type="text" name="username" required>
                 <input type="submit" value="Log In">
             </form>
         {% else %}
-            <form action="/send" method="post" enctype="multipart/form-data">
-                <label for="message">Message:</label>
-                <input type="text" name="message" required>
-                <input type="file" name="file" accept="image/*, video/*" /> <!-- Add file input for photos and videos -->
-                <input type="submit" value="Send Message">
-                <button type="button" id="emoji-picker-button">😀</button> <!-- Add emoji picker button -->
+            <form class="tweet-box" action="/send" method="post" enctype="multipart/form-data">
+                <input type="text" name="message" placeholder="What's happening?" required>
+                <input type="file" id="fileInput" name="file" accept="image/*, video/*" style="display: none;" />
+            <label for="fileInput" class="attachments-button">Attachments</label>
+                <button class="tweet-button" type="submit">Tweet</button>
             </form>
-            <hr>
-            <ul>
+            <div class="message-list">
                 {% for message in messages %}
-                    <li class="tweet">
-                        <span class="timestamp">
-                            {{ message.creation_time.ToDatetime().strftime('%Y-%m-%d %H:%M:%S') }}
-                        </span>
-                        - <span class="username">{{ message.sender }}</span>: {{ message.text }}
-                        
+                    <div class="tweet">
+                        <div class="message-header">
+                            <span class="message-sender">{{ message.sender }}</span>
+                            <span class="message-time">{{ message.creation_time }}</span>
+                        </div>
+                        <div class="message-text">{{ message.text }}</div>
                         {% if message.file_attachment %}
                             <div class="message-file">
-                                {% if message.file_attachment.file_type == 'image/jpeg' or message.file_attachment.file_type == 'image/png' %}
-                                <img src="data:{{ message.file_attachment.file_type }};base64,{{ message.file_attachment.file_data|b64encode }}" alt="Image">
-                                {% elif message.file_attachment.file_type == 'video/mp4' %}
+                                {% if message.file_attachment.file_type.startswith('image/') %}
+                                    <img src="{{ url_for('serve_attachment', filename=message.file_attachment.file_name) }}" alt="Image">
+                                {% elif message.file_attachment.file_type.startswith('video/') %}
                                     <video controls>
-                                        <source src="data:{{ message.file_attachment.file_type }};base64,{{ message.file_attachment.file_data|b64encode }}" type="video/mp4">
+                                        <source src="{{ url_for('serve_attachment', filename=message.file_attachment.file_name) }}" type="{{ message.file_attachment.file_type }}">
                                     </video>
                                 {% elif message.file_attachment.file_type.startswith('audio/') %}
                                     <audio controls>
-                                        <source src="data:{{ message.file_attachment.file_type }};base64,{{ message.file_attachment.file_data|b64encode }}" type="{{ message.file_attachment.file_type }}">
+                                        <source src="{{ url_for('serve_attachment', filename=message.file_attachment.file_name) }}" type="{{ message.file_attachment.file_type }}">
                                     </audio>
                                 {% endif %}
                             </div>
                         {% endif %}
-                    </li>
+                    </div>
                 {% endfor %}
-            </ul>
-            <a href="/logout">Logout</a>
+            </div>
+            <a class="logout-button" href="/logout">Logout</a>
         {% endif %}
     </div>
+    <div class="online-users">
+        Online Users: <span id="online-user-count">0</span>
+    </div>
+    <script>
+        const eventSource = new EventSource("/stream");
+    
+        eventSource.onmessage = (event) => {
+            const userCount = parseInt(event.data);
+            document.getElementById("online-user-count").textContent = userCount;
+        };
+    </script>
 </body>
 </html>

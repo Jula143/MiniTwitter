@@ -1,33 +1,45 @@
 syntax = "proto3";
 
 import "google/protobuf/empty.proto";
-import "google/protobuf/timestamp.proto";
 
-package client_message;
+package minitwitter;
+
+service MiniTwitter {
+  rpc SendMessage(Message) returns (google.protobuf.Empty);
+  rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
+  rpc AddLike(AddLikeRequest) returns (google.protobuf.Empty);
+  rpc AddComment(AddCommentRequest) returns (google.protobuf.Empty);
+}
 
 message Message {
-    string text = 1;
-    string sender = 2;
-    google.protobuf.Timestamp creation_time = 3;
-    FileAttachment file_attachment = 4; 
-    // add more fields like sender, timestamp, etc. 
+  string text = 1;
+  string sender = 2;
+  string creation_time = 3;
+  optional FileAttachment file_attachment = 4;
 }
 
 message FileAttachment {
-    string file_name = 1;
-    string file_type = 2;
-    bytes file_data = 3;
+  string file_name = 1;
+  bytes file_data = 2;
+  string file_type = 3;
+  string file_data_id = 4;
 }
 
 message GetMessagesRequest {
-    int32 n = 1;
+  int32 n = 1;
 }
 
 message GetMessagesResponse {
-    repeated Message messages = 1;
+  repeated Message messages = 1;
 }
 
-service MiniTwitter {
-    rpc SendMessage(Message) returns (google.protobuf.Empty);
-    rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
+message AddLikeRequest {
+  string message_id = 1;
+  string username = 2;
+}
+
+message AddCommentRequest {
+  string message_id = 1;
+  string username = 2;
+  string text = 3;
 }
