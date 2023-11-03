@@ -12,21 +12,22 @@ _sym_db = _symbol_database.Default()
 
 
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
+from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11minitwitter.proto\x12\x0e\x63lient_message\x1a\x1bgoogle/protobuf/empty.proto\"\'\n\x07Message\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x0e\n\x06sender\x18\x02 \x01(\t\"\x1f\n\x12GetMessagesRequest\x12\t\n\x01n\x18\x01 \x01(\x05\"@\n\x13GetMessagesResponse\x12)\n\x08messages\x18\x01 \x03(\x0b\x32\x17.client_message.Message2\xa5\x01\n\x0bMiniTwitter\x12>\n\x0bSendMessage\x12\x17.client_message.Message\x1a\x16.google.protobuf.Empty\x12V\n\x0bGetMessages\x12\".client_message.GetMessagesRequest\x1a#.client_message.GetMessagesResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11minitwitter.proto\x12\x0e\x63lient_message\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"Z\n\x07Message\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x0e\n\x06sender\x18\x02 \x01(\t\x12\x31\n\rcreation_time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x1f\n\x12GetMessagesRequest\x12\t\n\x01n\x18\x01 \x01(\x05\"@\n\x13GetMessagesResponse\x12)\n\x08messages\x18\x01 \x03(\x0b\x32\x17.client_message.Message2\xa5\x01\n\x0bMiniTwitter\x12>\n\x0bSendMessage\x12\x17.client_message.Message\x1a\x16.google.protobuf.Empty\x12V\n\x0bGetMessages\x12\".client_message.GetMessagesRequest\x1a#.client_message.GetMessagesResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'minitwitter_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_MESSAGE']._serialized_start=66
-  _globals['_MESSAGE']._serialized_end=105
-  _globals['_GETMESSAGESREQUEST']._serialized_start=107
-  _globals['_GETMESSAGESREQUEST']._serialized_end=138
-  _globals['_GETMESSAGESRESPONSE']._serialized_start=140
-  _globals['_GETMESSAGESRESPONSE']._serialized_end=204
-  _globals['_MINITWITTER']._serialized_start=207
-  _globals['_MINITWITTER']._serialized_end=372
+  _globals['_MESSAGE']._serialized_start=99
+  _globals['_MESSAGE']._serialized_end=189
+  _globals['_GETMESSAGESREQUEST']._serialized_start=191
+  _globals['_GETMESSAGESREQUEST']._serialized_end=222
+  _globals['_GETMESSAGESRESPONSE']._serialized_start=224
+  _globals['_GETMESSAGESRESPONSE']._serialized_end=288
+  _globals['_MINITWITTER']._serialized_start=291
+  _globals['_MINITWITTER']._serialized_end=456
 # @@protoc_insertion_point(module_scope)

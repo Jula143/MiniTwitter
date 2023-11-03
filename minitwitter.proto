@@ -1,12 +1,14 @@
 syntax = "proto3";
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
 package client_message;
 
 message Message {
     string text = 1;
     string sender = 2;
+    google.protobuf.Timestamp creation_time = 3;
     // add more fields like sender, timestamp, etc. 
 }
 
