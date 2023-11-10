@@ -61,13 +61,13 @@ class MiniTwitterServicer(minitwitter_pb2_grpc.MiniTwitterServicer):
 
             if "file_attachment" in message:
                 file_attachment = message["file_attachment"]
-                if "file_name" in file_attachment and "file_data_id" in file_attachment and "file_type" in file_attachment:
-                    file_data_id = ObjectId(file_attachment["file_data_id"])
+                if "fileName" in file_attachment and "fileDataId" in file_attachment and "fileType" in file_attachment:
+                    file_data_id = ObjectId(file_attachment["fileDataId"])
                     file_data = fs.get(file_data_id).read()
                     response_message.file_attachment.CopyFrom(minitwitter_pb2.FileAttachment(
-                        file_name=file_attachment["file_name"],
+                        file_name=file_attachment["fileName"],
                         file_data=file_data,
-                        file_type=file_attachment["file_type"]
+                        file_type=file_attachment["fileType"]
                     ))
                 response_messages.append(response_message)
 
@@ -81,10 +81,12 @@ class MiniTwitterServicer(minitwitter_pb2_grpc.MiniTwitterServicer):
         if attachment:
             file_data = attachment.read()
             file_type = attachment.content_type
+            print("Attachment found")
             return minitwitter_pb2.FileAttachment(file_data=file_data, file_type=file_type)
         else:
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details("Attachment not found")
+            print("Attachement not found")
             return minitwitter_pb2.google_dot_protobuf_dot_empty__pb2.Empty()
 
 def serve():

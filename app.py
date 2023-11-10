@@ -16,8 +16,6 @@ mongo = PyMongo(app)
 channel = grpc.insecure_channel('localhost:50051')
 stub = minitwitter_pb2_grpc.MiniTwitterStub(channel)
 
-UPLOAD_FOLDER = 'uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def b64encode_filter(data):
     return base64.b64encode(data).decode('utf-8')
@@ -52,7 +50,7 @@ def send_message(message, username, file):
 def get_messages(n):
     response = stub.GetMessages(minitwitter_pb2.GetMessagesRequest(n=n))
     messages = response.messages
-
+    
     for message in messages:
         timestamp_str = message.creation_time
         timestamp = datetime.datetime.fromtimestamp(int(float(timestamp_str)))

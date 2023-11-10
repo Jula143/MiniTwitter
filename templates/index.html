@@ -39,14 +39,14 @@
                         {% if message.file_attachment %}
                             <div class="message-file">
                                 {% if message.file_attachment.file_type.startswith('image/') %}
-                                    <img src="{{ url_for('serve_attachment', filename=message.file_attachment.file_name) }}" alt="Image">
+                                    <img src="{{ url_for('serve_attachment', attachment_id=message.file_attachment.file_data_id) }}" alt="Image">
                                 {% elif message.file_attachment.file_type.startswith('video/') %}
                                     <video controls>
-                                        <source src="{{ url_for('serve_attachment', filename=message.file_attachment.file_name) }}" type="{{ message.file_attachment.file_type }}">
+                                        <source src="{{ url_for('serve_attachment', attachment_id=message.file_attachment.file_data_id) }}" type="{{ message.file_attachment.file_type }}">
                                     </video>
                                 {% elif message.file_attachment.file_type.startswith('audio/') %}
                                     <audio controls>
-                                        <source src="{{ url_for('serve_attachment', filename=message.file_attachment.file_name) }}" type="{{ message.file_attachment.file_type }}">
+                                        <source src="{{ url_for('serve_attachment', attachment_id=message.file_attachment.file_data_id) }}" type="{{ message.file_attachment.file_type }}">
                                     </audio>
                                 {% endif %}
                             </div>
