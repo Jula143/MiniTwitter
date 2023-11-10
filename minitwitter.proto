@@ -7,6 +7,7 @@ package minitwitter;
 service MiniTwitter {
   rpc SendMessage(Message) returns (google.protobuf.Empty);
   rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
+  rpc GetAttachment(GetAttachmentsRequest) returns (GetAttachmentsResponse);
   rpc AddLike(AddLikeRequest) returns (google.protobuf.Empty);
   rpc AddComment(AddCommentRequest) returns (google.protobuf.Empty);
 }
@@ -31,6 +32,14 @@ message GetMessagesRequest {
 
 message GetMessagesResponse {
   repeated Message messages = 1;
+}
+
+message GetAttachmentsRequest {
+  string attachment_id = 1;
+}
+
+message GetAttachmentsResponse {
+  FileAttachment attachments = 1;
 }
 
 message AddLikeRequest {

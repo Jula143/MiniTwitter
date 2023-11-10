@@ -25,6 +25,11 @@ class MiniTwitterStub(object):
                 request_serializer=minitwitter__pb2.GetMessagesRequest.SerializeToString,
                 response_deserializer=minitwitter__pb2.GetMessagesResponse.FromString,
                 )
+        self.GetAttachment = channel.unary_unary(
+                '/minitwitter.MiniTwitter/GetAttachment',
+                request_serializer=minitwitter__pb2.GetAttachmentsRequest.SerializeToString,
+                response_deserializer=minitwitter__pb2.GetAttachmentsResponse.FromString,
+                )
         self.AddLike = channel.unary_unary(
                 '/minitwitter.MiniTwitter/AddLike',
                 request_serializer=minitwitter__pb2.AddLikeRequest.SerializeToString,
@@ -47,6 +52,12 @@ class MiniTwitterServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def GetMessages(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetAttachment(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -76,6 +87,11 @@ def add_MiniTwitterServicer_to_server(servicer, server):
                     servicer.GetMessages,
                     request_deserializer=minitwitter__pb2.GetMessagesRequest.FromString,
                     response_serializer=minitwitter__pb2.GetMessagesResponse.SerializeToString,
+            ),
+            'GetAttachment': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAttachment,
+                    request_deserializer=minitwitter__pb2.GetAttachmentsRequest.FromString,
+                    response_serializer=minitwitter__pb2.GetAttachmentsResponse.SerializeToString,
             ),
             'AddLike': grpc.unary_unary_rpc_method_handler(
                     servicer.AddLike,
@@ -128,6 +144,23 @@ class MiniTwitter(object):
         return grpc.experimental.unary_unary(request, target, '/minitwitter.MiniTwitter/GetMessages',
             minitwitter__pb2.GetMessagesRequest.SerializeToString,
             minitwitter__pb2.GetMessagesResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetAttachment(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/minitwitter.MiniTwitter/GetAttachment',
+            minitwitter__pb2.GetAttachmentsRequest.SerializeToString,
+            minitwitter__pb2.GetAttachmentsResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

@@ -50,8 +50,8 @@ def send_message(message, username, file):
 def get_messages(n):
     response = stub.GetMessages(minitwitter_pb2.GetMessagesRequest(n=n))
     messages = response.messages
-    
     for message in messages:
+        print("attachment_id: ", message.file_attachment)
         timestamp_str = message.creation_time
         timestamp = datetime.datetime.fromtimestamp(int(float(timestamp_str)))
         message.creation_time = timestamp.strftime('%Y-%m-%d %H:%M:%S')
@@ -60,7 +60,10 @@ def get_messages(n):
 
 @app.route('/attachments/<attachment_id>')
 def serve_attachment(attachment_id):
-    attachment = stub.GetAttachment(minitwitter_pb2.GetAttachmentRequest(attachment_id=attachment_id))
+    attachment = stub.GetAttachment(minitwitter_pb2.GetAttachmentsRequest(attachment_id=attachment_id))
+    attachment = attachment.attachments
+    print(attachment)
+    
     if not attachment:
         print(404)
     response = make_response(attachment.file_data)

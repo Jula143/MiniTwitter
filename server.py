@@ -67,7 +67,8 @@ class MiniTwitterServicer(minitwitter_pb2_grpc.MiniTwitterServicer):
                     response_message.file_attachment.CopyFrom(minitwitter_pb2.FileAttachment(
                         file_name=file_attachment["fileName"],
                         file_data=file_data,
-                        file_type=file_attachment["fileType"]
+                        file_type=file_attachment["fileType"],
+                        file_data_id=str(file_data_id)
                     ))
                 response_messages.append(response_message)
 
@@ -82,7 +83,13 @@ class MiniTwitterServicer(minitwitter_pb2_grpc.MiniTwitterServicer):
             file_data = attachment.read()
             file_type = attachment.content_type
             print("Attachment found")
-            return minitwitter_pb2.FileAttachment(file_data=file_data, file_type=file_type)
+            attachmentv2 = minitwitter_pb2.FileAttachment(
+                file_name=attachment.filename,
+                file_type=file_type,
+                file_data=bytes(file_data),
+                file_data_id=attachment_id
+            )
+            return minitwitter_pb2.GetAttachmentsResponse(attachments=attachmentv2)
         else:
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details("Attachment not found")
