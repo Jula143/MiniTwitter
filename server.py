@@ -16,9 +16,10 @@ class MiniTwitterServicer(minitwitter_pb2_grpc.MiniTwitterServicer):
     def __init__(self):
         self.messages = []
         self.likes = {} 
-        self.comments = {}  
+        self.comments = {}
 
     def SendMessage(self, request, context):
+        message_id = request.message_id
         message = request.text
         sender = request.sender
         creation_time = request.creation_time
@@ -36,6 +37,7 @@ class MiniTwitterServicer(minitwitter_pb2_grpc.MiniTwitterServicer):
             file_data_id = None
 
         db.messages.insert_one({
+            "message_id": message_id, 
             "text": message,
             "sender": sender,
             "creation_time": creation_time,
@@ -51,12 +53,16 @@ class MiniTwitterServicer(minitwitter_pb2_grpc.MiniTwitterServicer):
 
         messages = collection.find().sort("creation_time", -1).limit(request.n)
         response_messages = []
+        
 
         for message in messages:
+            likes_count = db.likes.count_documents({"message_id": message["message_id"]})
             response_message = minitwitter_pb2.Message(
+                message_id=message["message_id"],
                 text=message["text"],
                 sender=message["sender"],
                 creation_time=message["creation_time"],
+                likes=likes_count,
             )
 
             if "file_attachment" in message:
@@ -95,6 +101,61 @@ class MiniTwitterServicer(minitwitter_pb2_grpc.MiniTwitterServicer):
             context.set_details("Attachment not found")
             print("Attachement not found")
             return minitwitter_pb2.google_dot_protobuf_dot_empty__pb2.Empty()
+        
+    def AddLike(self, request, context):
+        message_id = request.message_id
+        username = request.username
+
+
+        if db.likes.find_one({"message_id": message_id, "username": username}) != None:
+            db.likes.delete_one({"message_id": message_id, "username": username})
+        else:
+            db.likes.insert_one({"message_id": message_id, "username": username})
+
+
+        return minitwitter_pb2.AddLikeResponse()
+
+
+    def AddComment(self, request, context):
+        message_id = request.message_id
+        username = request.username
+        text = request.text
+
+        comment = minitwitter_pb2.Comment(username=username, text=text)
+
+        #add comment to db
+        db.comments.insert_one({"message_id": message_id, "username": username, "text": text})
+
+        return minitwitter_pb2.google_dot_protobuf_dot_empty__pb2.Empty()
+    
+    def GetLikes(self, request, context):
+        username = request.username
+
+        likes_collection = db.likes
+
+        liked_messages = likes_collection.find({"username": username}, {"message_id": 1})
+
+        liked_message_ids = [like["message_id"] for like in liked_messages]
+
+        return minitwitter_pb2.GetLikesResponse(liked_message_ids=liked_message_ids)
+    
+    def GetComments(self, request, context):
+        message_id = request.message_id
+
+        comments_collection = db.comments
+
+        comments = comments_collection.find({"message_id": message_id})
+
+        response_comments = []
+
+        for comment in comments:
+            response_comment = minitwitter_pb2.Comment(
+                username=comment["username"],
+                text=comment["text"]
+            )
+            response_comments.append(response_comment)
+
+        return minitwitter_pb2.GetCommentsResponse(comments=response_comments)
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

@@ -7,6 +7,7 @@ from werkzeug.utils import secure_filename
 import base64
 from flask_pymongo import PyMongo
 import datetime
+import uuid
 
 app = Flask(__name__)
 app.secret_key = '85093485204985320'
@@ -34,6 +35,7 @@ def stream():
 def send_message(message, username, file):
     time_is = datetime.datetime.now()
     current_time = time_is.timestamp()
+    message_id = str(uuid.uuid4())
     if file:
         file_data = file.read()
         file_name = secure_filename(file.filename)
@@ -43,26 +45,53 @@ def send_message(message, username, file):
             file_type=file_type,
             file_data=file_data
         )
-        stub.SendMessage(minitwitter_pb2.Message(text=message, sender=username, creation_time=str(current_time), file_attachment=file_attachment))
+        stub.SendMessage(minitwitter_pb2.Message(message_id=message_id, text=message, sender=username, creation_time=str(current_time), file_attachment=file_attachment))
     else:
-        stub.SendMessage(minitwitter_pb2.Message(text=message, sender=username, creation_time=str(current_time)))
+        stub.SendMessage(minitwitter_pb2.Message(message_id=message_id, text=message, sender=username, creation_time=str(current_time)))
 
 def get_messages(n):
-    response = stub.GetMessages(minitwitter_pb2.GetMessagesRequest(n=n))
+    response = stub.GetMessages(minitwitter_pb2.GetMessagesRequest(n=n, username=session.get('username', '')))
     messages = response.messages
+    liked_messages = stub.GetLikes(minitwitter_pb2.GetLikesRequest(username=session.get('username', ''))).liked_message_ids
+
     for message in messages:
-        print("attachment_id: ", message.file_attachment)
         timestamp_str = message.creation_time
         timestamp = datetime.datetime.fromtimestamp(int(float(timestamp_str)))
         message.creation_time = timestamp.strftime('%Y-%m-%d %H:%M:%S')
+        message.liked_by_user = message.message_id in liked_messages
+        comments_response = stub.GetComments(minitwitter_pb2.GetCommentsRequest(message_id=message.message_id))
+        comments = comments_response.comments
+        message.comments.extend(comments)
 
     return messages
+
+def add_like(message_id):
+    stub.AddLike(minitwitter_pb2.AddLikeRequest(message_id=message_id, username=session['username']))
+
+    return minitwitter_pb2.AddLikeResponse()
+
+def add_comment(message_id, text):
+    stub.AddComment(minitwitter_pb2.AddCommentRequest(
+        message_id=message_id,
+        username=session['username'],
+        text=text
+    ))
+
+@app.route('/like/<message_id>')
+def like(message_id):
+    add_like(message_id)
+    return redirect(url_for('home'))
+
+@app.route('/comment/<message_id>', methods=['POST'])
+def comment(message_id):
+    text = request.form['comment_text']
+    add_comment(message_id, text)
+    return redirect(url_for('home'))
 
 @app.route('/attachments/<attachment_id>')
 def serve_attachment(attachment_id):
     attachment = stub.GetAttachment(minitwitter_pb2.GetAttachmentsRequest(attachment_id=attachment_id))
     attachment = attachment.attachments
-    print(attachment)
     
     if not attachment:
         print(404)

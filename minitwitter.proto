@@ -10,13 +10,19 @@ service MiniTwitter {
   rpc GetAttachment(GetAttachmentsRequest) returns (GetAttachmentsResponse);
   rpc AddLike(AddLikeRequest) returns (google.protobuf.Empty);
   rpc AddComment(AddCommentRequest) returns (google.protobuf.Empty);
+  rpc GetLikes(GetLikesRequest) returns (GetLikesResponse);
+  rpc GetComments(GetCommentsRequest) returns (GetCommentsResponse);
 }
 
 message Message {
-  string text = 1;
-  string sender = 2;
-  string creation_time = 3;
-  optional FileAttachment file_attachment = 4;
+  string message_id = 1;
+  string text = 2;
+  string sender = 3;
+  string creation_time = 4;
+  optional FileAttachment file_attachment = 5;
+  int32 likes = 6;                  
+  repeated Comment comments = 7;  
+  bool liked_by_user = 8;
 }
 
 message FileAttachment {
@@ -26,8 +32,14 @@ message FileAttachment {
   string file_data_id = 4;
 }
 
+message Comment {
+  string username = 1;
+  string text = 2;
+}
+
 message GetMessagesRequest {
   int32 n = 1;
+  string username = 2;
 }
 
 message GetMessagesResponse {
@@ -47,8 +59,33 @@ message AddLikeRequest {
   string username = 2;
 }
 
+message AddLikeResponse {
+  int32 likes = 1;
+}
+
 message AddCommentRequest {
   string message_id = 1;
   string username = 2;
   string text = 3;
+}
+
+message GetLikesResponse {
+  repeated string liked_message_ids = 1;
+}
+
+message GetLikesRequest {
+  string username = 1;
+}
+
+message AddCommentResponse {
+  string username = 1;
+  string text = 2;
+}
+
+message GetCommentsResponse {
+  repeated Comment comments = 1;
+}
+
+message GetCommentsRequest {
+  string message_id = 1;
 }

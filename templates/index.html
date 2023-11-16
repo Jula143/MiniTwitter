@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Mini Twitter</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" />
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
@@ -25,7 +27,7 @@
             <form class="tweet-box" action="/send" method="post" enctype="multipart/form-data">
                 <input type="text" name="message" placeholder="What's happening?" required>
                 <input type="file" id="fileInput" name="file" accept="image/*, video/*" style="display: none;" />
-            <label for="fileInput" class="attachments-button">Attachments</label>
+                <label for="fileInput" class="attachments-button">Attachments</label>
                 <button class="tweet-button" type="submit">Tweet</button>
             </form>
             <div class="message-list">
@@ -36,8 +38,8 @@
                             <span class="message-time">{{ message.creation_time }}</span>
                         </div>
                         <div class="message-text">{{ message.text }}</div>
-                        {% if message.file_attachment %}
-                            <div class="message-file">
+                        <div class="message-file">
+                            {% if message.file_attachment %}
                                 {% if message.file_attachment.file_type.startswith('image/') %}
                                     <img src="{{ url_for('serve_attachment', attachment_id=message.file_attachment.file_data_id) }}" alt="Image">
                                 {% elif message.file_attachment.file_type.startswith('video/') %}
@@ -49,8 +51,79 @@
                                         <source src="{{ url_for('serve_attachment', attachment_id=message.file_attachment.file_data_id) }}" type="{{ message.file_attachment.file_type }}">
                                     </audio>
                                 {% endif %}
+                            {% endif %}
+                        </div>
+                            <div class="message-footer">
+                                <div class="like-comment-section">
+                                    <div class="like-button">
+                                        {% if session.logged_in %}
+                                            <a href="{{ url_for('like', message_id=message.message_id) }}" class="like-link">
+                                                {% if message.liked_by_user %}
+                                                    <i class="fas fa-heart liked"></i>
+                                                {% else %}
+                                                    <i class="far fa-heart"></i>
+                                                {% endif %}
+                                            </a>
+                                        {% endif %}
+                                        <span class="like-count">{{ message.likes }}</span>
+                                    </div>
+                                    <div id="overlay" class="overlay"></div>
+                                    <div class="comment-section">
+                                        <span class="comment-count">{{ message.comments | length }}</span>
+                                        <button class="open-comments-btn" onclick="openCommentsModal('{{ message.message_id }}')">
+                                            <i class="far fa-comment"></i>
+                                        </button>
+                                
+                                        <!-- Hidden comments modal -->
+                                        <div id="commentsModal_{{ message.message_id }}" class="modal">
+                                            <div class="modal-content">
+                                                <div class="message-text">{{ message.text }}</div>
+                                                <div class="message-file">
+                                                    {% if message.file_attachment %}
+                                                        {% if message.file_attachment.file_type.startswith('image/') %}
+                                                            <img src="{{ url_for('serve_attachment', attachment_id=message.file_attachment.file_data_id) }}" alt="Image">
+                                                        {% elif message.file_attachment.file_type.startswith('video/') %}
+                                                            <video controls>
+                                                                <source src="{{ url_for('serve_attachment', attachment_id=message.file_attachment.file_data_id) }}" type="{{ message.file_attachment.file_type }}">
+                                                            </video>
+                                                        {% elif message.file_attachment.file_type.startswith('audio/') %}
+                                                            <audio controls>
+                                                                <source src="{{ url_for('serve_attachment', attachment_id=message.file_attachment.file_data_id) }}" type="{{ message.file_attachment.file_type }}">
+                                                            </audio>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </div>
+                                                <div class="like-button">
+                                                    {% if session.logged_in %}
+                                                        <a href="{{ url_for('like', message_id=message.message_id) }}" class="like-link">
+                                                            {% if message.liked_by_user %}
+                                                                <i class="fas fa-heart liked"></i>
+                                                            {% else %}
+                                                                <i class="far fa-heart"></i>
+                                                            {% endif %}
+                                                        </a>
+                                                    {% endif %}
+                                                    <span class="like-count">{{ message.likes }}</span>
+                                                </div>
+                                
+                                                
+                                                <form action="{{ url_for('comment', message_id=message.message_id) }}" method="post">
+                                                    <input type="text" name="comment_text" placeholder="Add a comment...">
+                                                    <button type="submit">Comment</button>
+                                                </form>
+                                
+                                                
+                                                <ul class="comments">
+                                                    {% for comment in message.comments %}
+                                                        <li><strong>{{ comment.username }}</strong>: {{ comment.text }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        {% endif %}
+                        </div>
                     </div>
                 {% endfor %}
             </div>
@@ -62,11 +135,28 @@
     </div>
     <script>
         const eventSource = new EventSource("/stream");
-    
+
         eventSource.onmessage = (event) => {
             const userCount = parseInt(event.data);
             document.getElementById("online-user-count").textContent = userCount;
         };
+    </script>
+    <script>
+        function openCommentsModal(messageId) {
+            const modal = document.getElementById('commentsModal_' + messageId);
+            const overlay = document.getElementById('overlay');
+    
+            modal.style.display = 'block';
+            overlay.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent scrolling on the body
+    
+            // Close the modal if the user clicks outside of it
+            overlay.onclick = function () {
+                modal.style.display = 'none';
+                overlay.style.display = 'none';
+                document.body.style.overflow = 'auto'; // Allow scrolling on the body
+            }
+        }
     </script>
 </body>
 </html>
