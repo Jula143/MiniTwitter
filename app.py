@@ -108,9 +108,27 @@ def home():
 @app.route('/login', methods=['POST'])
 def login():
     username = request.form['username']
-    session['logged_in'] = True
-    session['username'] = username
-    online_users.add(username)
+    password = request.form['password']
+    if mongo.db.users.find_one({"username": username, "password": password}) == None:
+        session['logged_in'] = False
+        return redirect(url_for('home'))
+    else:
+        session['logged_in'] = True
+        session['username'] = username
+        online_users.add(username)
+    return redirect(url_for('home'))
+
+@app.route('/register', methods=['POST'])
+def register():
+    username = request.form['username']
+    password = request.form['password']
+    if mongo.db.users.find_one({"username": username}) == None:
+        mongo.db.users.insert_one({"username": username, "password": password})
+        session['logged_in'] = True
+        session['username'] = username
+        online_users.add(username)
+    else:
+        session['logged_in'] = False
     return redirect(url_for('home'))
 
 @app.route('/logout')
