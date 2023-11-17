@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, Response, make_response
+from flask import Flask, render_template, request, redirect, url_for, session, Response, make_response, jsonify
 import grpc
 import minitwitter_pb2
 import minitwitter_pb2_grpc
@@ -53,7 +53,7 @@ def get_messages(n):
     response = stub.GetMessages(minitwitter_pb2.GetMessagesRequest(n=n, username=session.get('username', '')))
     messages = response.messages
     liked_messages = stub.GetLikes(minitwitter_pb2.GetLikesRequest(username=session.get('username', ''))).liked_message_ids
-
+    
     for message in messages:
         timestamp_str = message.creation_time
         timestamp = datetime.datetime.fromtimestamp(int(float(timestamp_str)))
@@ -61,8 +61,8 @@ def get_messages(n):
         message.liked_by_user = message.message_id in liked_messages
         comments_response = stub.GetComments(minitwitter_pb2.GetCommentsRequest(message_id=message.message_id))
         comments = comments_response.comments
-        message.comments.extend(comments)
-
+        message.comments.extend(reversed(comments))
+    print(messages)
     return messages
 
 def add_like(message_id):
@@ -80,14 +80,23 @@ def add_comment(message_id, text):
 @app.route('/like/<message_id>')
 def like(message_id):
     add_like(message_id)
-    return redirect(url_for('home'))
+    num = request.args.get('num', default=10, type=int)
+    messages = get_messages(num)
+    updated_message = next((message for message in messages if message.message_id == message_id), None)
+    
+
+    return jsonify({"message_id": message_id, "likes": updated_message.likes, "liked_by_user": updated_message.liked_by_user})
 
 @app.route('/comment/<message_id>', methods=['POST'])
 def comment(message_id):
     text = request.form['comment_text']
     add_comment(message_id, text)
-    return redirect(url_for('home'))
-
+    num = request.args.get('num', default=10, type=int)
+    messages = get_messages(num)
+    updated_message = next((message for message in messages if message.message_id == message_id), None)
+    comments_list = [{"username": comment.username, "text": comment.text} for comment in updated_message.comments]
+    #reverse list so that newest comments are at the top
+    return jsonify({"message_id":updated_message.message_id, "comments": comments_list})
 @app.route('/attachments/<attachment_id>')
 def serve_attachment(attachment_id):
     attachment = stub.GetAttachment(minitwitter_pb2.GetAttachmentsRequest(attachment_id=attachment_id))

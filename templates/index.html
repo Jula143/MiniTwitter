@@ -3,24 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>Mini Twitter</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" />
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
+    {% if not session.logged_in %}
     <div class="header">
         <img src="{{ url_for('static', filename='logo.png') }}" alt="Mini Twitter Logo" class="logo">
-        <a href="#">Home</a>
-        <a href="#">Profile</a>
-        <a href="#">Notifications</a>
-        <a href="#">Messages</a>
-        <a href="#">More</a>
     </div>
     <div class="container">
         
-        {% if not session.logged_in %}
         <!--create a button for login and for signup form to show after click and hide the forms until click-->
-        
         <button class="login-button" onclick="showLoginForm()">Log In</button>
         <button class="signup-button" onclick="showSignupForm()">Sign Up</button>
         <!--Hide The forms until click of button-->
@@ -41,16 +36,33 @@
             <input type="text" name="confirm_password" required>
             <input type="submit" value="Sign Up">
         </form>
-        {% else %}
-            <form class="tweet-box" action="/send" method="post" enctype="multipart/form-data">
-                <input type="text" name="message" placeholder="What's happening?" required>
-                <input type="file" id="fileInput" name="file" accept="image/*, video/*" style="display: none;" />
-                <label for="fileInput" class="attachments-button">Attachments</label>
+    </div>
+    {% else %}
+    <div class="header">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Mini Twitter Logo" class="logo">
+        <a href="#">Home</a>
+        <a href="#">Profile</a>
+        <a href="#">Notifications</a>
+        <a href="#">Messages</a>
+        <a href="#">More</a>
+    </div>
+    <div class="container">  
+        <form class="tweet-box" action="/send" method="post" enctype="multipart/form-data">
+            <input type="text" name="message" placeholder="What's happening?" required>
+            <div class="button-container">
                 <button class="tweet-button" type="submit">Tweet</button>
-            </form>
+                <div class="attachment-container">
+                    <input type="file" id="fileInput" name="file" accept="image/*, video/*" style="display: none;" onchange="updateAttachmentLabel()">
+                    <label for="fileInput" class="attachments-button">
+                        <i class="fas fa-paperclip"></i>
+                    </label>
+                    <span id="fileName" class="file-name"></span>
+                </div>
+            </div>
+        </form>
             <div class="message-list">
                 {% for message in messages %}
-                    <div class="tweet">
+                    <div class="tweet" data-message-id="{{ message.message_id }}">
                         <div class="message-header">
                             <span class="message-sender">{{ message.sender }}</span>
                             <span class="message-time">{{ message.creation_time }}</span>
@@ -146,11 +158,13 @@
                 {% endfor %}
             </div>
             <a class="logout-button" href="/logout">Logout</a>
+            <div class="online-users">
+                Online Users:  <span id="online-user-count">0</span>
+            </div>
         {% endif %}
+       
     </div>
-    <div class="online-users">
-        Online Users: <span id="online-user-count">0</span>
-    </div>
+    
     <script>
         const eventSource = new EventSource("/stream");
 
@@ -199,6 +213,112 @@
             signupForm.style.display = 'block';
             loginButton.style.display = 'none';
             signupButton.style.display = 'none';
+        }
+    </script>
+    <script>
+        $(document).ready(function () {
+            // Use event delegation to handle dynamically added elements
+            let currentMessageId; // Variable to store the current message ID
+
+            // Use event delegation to handle dynamically added elements
+            $('.message-list').on('click', '.like-link', function (e) {
+                e.preventDefault();
+
+                // Get the URL for liking the message
+                const likeUrl = $(this).attr('href');
+
+                // Use the stored message ID or find it from the clicked element
+                const messageId = currentMessageId || $(this).closest('.tweet').data('message-id');
+
+                // Make an AJAX request to like the message
+                $.ajax({
+                    type: 'GET',
+                    url: likeUrl,
+                    cache: false,
+                    success: function (data) {
+                        const likeCountElement = $('.message-list').find(`[data-message-id="${messageId}"]`).find('.like-count');
+                        const heartIcon = $('.message-list').find(`[data-message-id="${messageId}"]`).find('.like-button i');
+                        likeCountElement.text(data.likes);
+                        updateLikeStatus(heartIcon, data.liked_by_user);
+
+                        // Update the like button and count in the modal
+                        const modalLikeCountElement = $('#commentsModal_' + messageId).find('.like-count');
+                        const modalHeartIcon = $('#commentsModal_' + messageId).find('.like-button i');
+                        modalLikeCountElement.text(data.likes);
+                        updateLikeStatus(modalHeartIcon, data.liked_by_user);
+
+                        // Clear the stored message ID
+                        currentMessageId = null;
+                    },
+                    error: function (error) {
+                        console.error('Error liking message:', error);
+                    }
+                });
+            });
+
+
+            // Function to update like status (far or fas) based on the server response
+            function updateLikeStatus(heartIcon, liked_by_user) {
+                if (heartIcon.length > 0) {
+                    if (liked_by_user) {
+                        heartIcon.removeClass('far fa-heart').addClass('fas fa-heart liked');
+                    } else {
+                        heartIcon.removeClass('fas fa-heart liked').addClass('far fa-heart');
+                    }
+                } else {
+                    console.error('Heart icon not found!');
+                }
+            }
+            $('.message-list').on('submit', 'form', function (e) {
+                e.preventDefault();
+
+                const commentForm = $(this);
+                const commentUrl = commentForm.attr('action');
+                const commentText = commentForm.find('.comment-textarea').val();
+                
+                $.ajax({
+                    type: 'POST',
+                    url: commentUrl,
+                    data: { comment_text: commentText },
+                    cache: false,
+                    success: function (data) {
+                        const messageId = data.message_id;
+                        console.log('Comment form submitted:', commentText, messageId);
+                        console.log('Comment added successfully:', data);
+
+                        const commentsContainer = $('#commentsModal_' + messageId).find('.comments');
+
+                        commentsContainer.empty();
+                        
+                        data.comments.forEach(comment => {
+                            const newComment = `<li><strong>${comment.username}</strong>: ${comment.text}</li>`;
+                            commentsContainer.append(newComment);
+                        });
+
+                        commentForm.find('.comment-textarea').val('');
+
+                        // Optionally, update the comment count in the UI
+                        const commentCountElement = $(e.target).closest('.comment-section').find('.comment-count');
+                        const newCommentCount = data.comments.length;
+                        commentCountElement.text(newCommentCount);
+                    },
+                    error: function (error) {
+                        console.error('Error adding comment:', error);
+                    }
+                });
+            });
+        });
+    </script>
+    <script>
+        function updateAttachmentLabel() {
+            const fileInput = document.getElementById('fileInput');
+            const fileNameLabel = document.getElementById('fileName');
+
+            if (fileInput.files.length > 0) {
+                fileNameLabel.textContent = fileInput.files[0].name;
+            } else {
+                fileNameLabel.textContent = '';
+            }
         }
     </script>
 </body>

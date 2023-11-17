@@ -203,19 +203,27 @@ a.logout-button:hover {
     text-decoration: none;
 }
 
+.attachment-container {
+    position: relative;
+    display: inline-block;
+}
+
 .attachments-button {
     background-color: #1DA1F2;
     color: white;
     border: none;
     border-radius: 8px;
-    padding: 10px 15px;
+    padding: 10px;
     font-size: 16px;
-    font-weight: bold;
-    text-decoration: none;
+    cursor: pointer;
 }
 
-.attachments-button:hover {
-    background-color: #0E7EAF;
+.file-name {
+    position: absolute;
+    left: 50px; /* Adjust the left value as needed */
+    top: 15px; /* Adjust the top value as needed */
+    font-size: 14px;
+    color: #333; /* Adjust the color as needed */
 }
 
 .like-comment-section {
@@ -305,6 +313,8 @@ a.logout-button:hover {
 }
 
 .login-button {
+    display: block;
+    margin-top: 20px   ;
     background-color: #1DA1F2;
     color: white;
     border: none;
@@ -322,6 +332,8 @@ a.logout-button:hover {
 }
 
 .signup-button {
+    display: block;
+    margin-top: 20px;
     background-color: #1DA1F2;
     color: white;
     border: none;
@@ -367,3 +379,8 @@ a.logout-button:hover {
     margin-right: 10px;
 }
 
+.online-users {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
