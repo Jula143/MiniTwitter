@@ -138,7 +138,7 @@
                                 
                                                 
                                                 <form action="{{ url_for('comment', message_id=message.message_id) }}" method="post">
-                                                    <input class = "comment-textarea" type="text" name="comment_text" placeholder="Add a comment...">
+                                                    <input class = "comment-textarea" type="text" name="comment_text" placeholder="Add a comment..." required>
                                                     <button class="comment-modal-btn" type="submit">Comment</button>
                                                 </form>
                                 

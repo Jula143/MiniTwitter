@@ -97,6 +97,7 @@ def comment(message_id):
     comments_list = [{"username": comment.username, "text": comment.text} for comment in updated_message.comments]
     #reverse list so that newest comments are at the top
     return jsonify({"message_id":updated_message.message_id, "comments": comments_list})
+
 @app.route('/attachments/<attachment_id>')
 def serve_attachment(attachment_id):
     attachment = stub.GetAttachment(minitwitter_pb2.GetAttachmentsRequest(attachment_id=attachment_id))
@@ -131,7 +132,10 @@ def login():
 def register():
     username = request.form['username']
     password = request.form['password']
-    if mongo.db.users.find_one({"username": username}) == None:
+    confirm_password = request.form['confirm_password']
+    if confirm_password!=password:
+        session['logged_in'] = False
+    elif mongo.db.users.find_one({"username": username}) == None:
         mongo.db.users.insert_one({"username": username, "password": password})
         session['logged_in'] = True
         session['username'] = username
