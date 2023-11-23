@@ -12,6 +12,7 @@ service MiniTwitter {
   rpc AddComment(AddCommentRequest) returns (google.protobuf.Empty);
   rpc GetLikes(GetLikesRequest) returns (GetLikesResponse);
   rpc GetComments(GetCommentsRequest) returns (GetCommentsResponse);
+  rpc Register(RegisterRequest) returns (google.protobuf.Empty);
 }
 
 message Message {
@@ -88,4 +89,10 @@ message GetCommentsResponse {
 
 message GetCommentsRequest {
   string message_id = 1;
+}
+
+message RegisterRequest {
+  string username = 1;
+  string password = 2;
+  optional FileAttachment profile_picture = 3;
 }

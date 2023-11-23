@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, Response, make_response, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, Response, make_response, jsonify, flash
 import grpc
 import minitwitter_pb2
 import minitwitter_pb2_grpc
@@ -62,7 +62,6 @@ def get_messages(n):
         comments_response = stub.GetComments(minitwitter_pb2.GetCommentsRequest(message_id=message.message_id))
         comments = comments_response.comments
         message.comments.extend(reversed(comments))
-    print(messages)
     return messages
 
 def add_like(message_id):
@@ -128,20 +127,42 @@ def login():
         online_users.add(username)
     return redirect(url_for('home'))
 
+def register_user(username, password, profile_picture):
+    if profile_picture:
+        profile_picture_data = profile_picture.read()
+        profile_picture_name = secure_filename(profile_picture.filename)
+        profile_picture_type = profile_picture.mimetype
+        profile_picture_attachment = minitwitter_pb2.FileAttachment(
+            file_name=profile_picture_name,
+            file_type=profile_picture_type,
+            file_data=profile_picture_data
+        )
+        stub.Register(minitwitter_pb2.RegisterRequest(username=username, password=password, profile_picture=profile_picture_attachment))
+        session['logged_in'] = True
+        session['username'] = username
+        online_users.add(username)
+    else:
+        stub.Register(minitwitter_pb2.RegisterRequest(username=username, password=password))
+        session['logged_in'] = True
+        session['username'] = username
+        online_users.add(username)
+    return redirect(url_for('home'))
+
 @app.route('/register', methods=['POST'])
 def register():
     username = request.form['username']
     password = request.form['password']
     confirm_password = request.form['confirm_password']
-    if confirm_password!=password:
-        session['logged_in'] = False
-    elif mongo.db.users.find_one({"username": username}) == None:
-        mongo.db.users.insert_one({"username": username, "password": password})
-        session['logged_in'] = True
-        session['username'] = username
-        online_users.add(username)
-    else:
-        session['logged_in'] = False
+    #check if user in database
+    if mongo.db.users.find_one({"username": username}) != None:
+        #write user already exists message
+        flash('You are already registered, please log in')
+        return render_template('index.html')
+    profile_picture = request.files.get('profile_picture')
+    print(profile_picture)
+    
+    if password == confirm_password:
+        register_user(username, password, profile_picture)
     return redirect(url_for('home'))
 
 @app.route('/logout')
@@ -153,6 +174,12 @@ def logout():
     session.pop('username', None)
     return redirect(url_for('home'))
 
+@app.route('/profile=<username>')
+def load_profile(username):
+    #find user in database
+    user = mongo.db.users.find_one({"username": username})
+    #load profile page
+    return render_template('profile.html', username=username)
 @app.route('/send', methods=['POST'])
 def send():
     if 'logged_in' in session:

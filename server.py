@@ -156,6 +156,30 @@ class MiniTwitterServicer(minitwitter_pb2_grpc.MiniTwitterServicer):
             response_comments.append(response_comment)
 
         return minitwitter_pb2.GetCommentsResponse(comments=response_comments)
+    
+    def Register(self, request, context):
+        username = request.username
+        password = request.password
+        profile_picture = request.profile_picture
+        
+        if profile_picture:
+            file_id = fs.put(profile_picture.file_data, filename=profile_picture.file_name, content_type=profile_picture.file_type)
+            file_data_id = ObjectId(file_id)
+            profile_picture = minitwitter_pb2.FileAttachment(
+                file_name=profile_picture.file_name,
+                file_type=profile_picture.file_type,
+                file_data_id=str(file_data_id)
+            )
+        else:
+            file_data_id = None
+
+        db.users.insert_one({
+            "username": username,
+            "password": password,
+            "profile_picture": MessageToDict(profile_picture) if profile_picture else None
+        })
+
+        return minitwitter_pb2.google_dot_protobuf_dot_empty__pb2.Empty()
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

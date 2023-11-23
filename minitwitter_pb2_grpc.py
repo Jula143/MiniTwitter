@@ -50,6 +50,11 @@ class MiniTwitterStub(object):
                 request_serializer=minitwitter__pb2.GetCommentsRequest.SerializeToString,
                 response_deserializer=minitwitter__pb2.GetCommentsResponse.FromString,
                 )
+        self.Register = channel.unary_unary(
+                '/minitwitter.MiniTwitter/Register',
+                request_serializer=minitwitter__pb2.RegisterRequest.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                )
 
 
 class MiniTwitterServicer(object):
@@ -97,6 +102,12 @@ class MiniTwitterServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def Register(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_MiniTwitterServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -134,6 +145,11 @@ def add_MiniTwitterServicer_to_server(servicer, server):
                     servicer.GetComments,
                     request_deserializer=minitwitter__pb2.GetCommentsRequest.FromString,
                     response_serializer=minitwitter__pb2.GetCommentsResponse.SerializeToString,
+            ),
+            'Register': grpc.unary_unary_rpc_method_handler(
+                    servicer.Register,
+                    request_deserializer=minitwitter__pb2.RegisterRequest.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -261,5 +277,22 @@ class MiniTwitter(object):
         return grpc.experimental.unary_unary(request, target, '/minitwitter.MiniTwitter/GetComments',
             minitwitter__pb2.GetCommentsRequest.SerializeToString,
             minitwitter__pb2.GetCommentsResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Register(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/minitwitter.MiniTwitter/Register',
+            minitwitter__pb2.RegisterRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -27,13 +27,15 @@
             <input type="text" name="password" required>
             <input type="submit" value="Log In">
         </form>
-        <form class="signup-form" action="/register" method="post" style="display: none;">
+        <form class="signup-form" action="/register" method="post" style="display: none;" enctype="multipart/form-data">
             <label for="username">Username:</label>
             <input type="text" name="username" required>
             <label for="password">Password:</label>
             <input type="text" name="password" required>
             <label for="password">Confirm Password:</label>
             <input type="text" name="confirm_password" required>
+            <label for="profile_picture">Profile Picture:</label>
+            <input type="file" name="profile_picture" accept="image/*">
             <input type="submit" value="Sign Up">
         </form>
     </div>
@@ -41,10 +43,16 @@
     <div class="header">
         <img src="{{ url_for('static', filename='logo.png') }}" alt="Mini Twitter Logo" class="logo">
         <a href="#">Home</a>
-        <a href="#">Profile</a>
         <a href="#">Notifications</a>
         <a href="#">Messages</a>
-        <a href="#">More</a>
+        <div class="user-profile" onclick="toggleDropdown()">
+            <img src="{{ url_for('static', filename=session.user_profile_picture or 'default_profile.png') }}" alt="Profile Picture" class="profile-picture">
+            <span class="username">{{ session.username }}</span>
+            <div class="dropdown" id="profileDropdown">
+                <a href="{{ url_for('load_profile', username=session.username) }}">Profile</a>
+                <a href="/logout">Logout</a>
+            </div>
+        </div>
     </div>
     <div class="container">  
         <form class="tweet-box" action="/send" method="post" enctype="multipart/form-data">
@@ -157,12 +165,11 @@
                     
                 {% endfor %}
             </div>
-            <a class="logout-button" href="/logout">Logout</a>
+            {% endif %}
+
             <div class="online-users">
                 Online Users:  <span id="online-user-count">0</span>
             </div>
-        {% endif %}
-       
     </div>
     
     <script>
@@ -320,6 +327,19 @@
                 fileNameLabel.textContent = '';
             }
         }
+    </script>
+    <script>
+        function toggleDropdown() {
+            // Toggle the dropdown
+            $(".dropdown").toggle();
+        }
+
+        // Close the dropdown when clicking outside of it
+        $(document).on("click", function (event) {
+            if (!$(event.target).closest(".user-profile").length) {
+                $(".dropdown").hide();
+            }
+        });
     </script>
 </body>
 </html>

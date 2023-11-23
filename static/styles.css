@@ -384,3 +384,81 @@ a.logout-button:hover {
     align-items: center;
     margin-top: 10px;
 }
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.user-profile a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+    transition: background-color 0.3s;
+}
+
+.user-profile a:hover {
+    background-color: #f5f5f5;
+}
+
+.profile-picture {
+    border-radius: 50%;
+    margin-right: 10px;
+    width: 40px; /* Adjust the width as needed */
+    height: 40px; /* Adjust the height as needed */
+    object-fit: cover; /* Ensure the image covers the specified dimensions */
+}
+
+.username {
+    font-weight: bold;
+    margin-right: auto;
+}
+.dropdown {
+    display: none;
+    position: absolute;
+    top: 10%;
+    right: 0;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+    min-width: 160px; /* Set a minimum width for the dropdown */
+}
+
+.dropdown a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+    transition: background-color 0.3s;
+}
+
+.dropdown a:hover {
+    background-color: #f5f5f5;
+}
+
+.profile-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.user-profile-page {
+    text-align: center;
+}
+
+.profile-picture-page {
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+}
+
+.username-page {
+    font-weight: bold;
+    font-size: 24px;
+    margin-top: 10px;
+}
