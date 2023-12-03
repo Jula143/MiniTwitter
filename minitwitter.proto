@@ -1,26 +1,98 @@
 syntax = "proto3";
 
 import "google/protobuf/empty.proto";
-import "google/protobuf/timestamp.proto";
 
-package client_message;
+package minitwitter;
+
+service MiniTwitter {
+  rpc SendMessage(Message) returns (google.protobuf.Empty);
+  rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
+  rpc GetAttachment(GetAttachmentsRequest) returns (GetAttachmentsResponse);
+  rpc AddLike(AddLikeRequest) returns (google.protobuf.Empty);
+  rpc AddComment(AddCommentRequest) returns (google.protobuf.Empty);
+  rpc GetLikes(GetLikesRequest) returns (GetLikesResponse);
+  rpc GetComments(GetCommentsRequest) returns (GetCommentsResponse);
+  rpc Register(RegisterRequest) returns (google.protobuf.Empty);
+}
 
 message Message {
-    string text = 1;
-    string sender = 2;
-    google.protobuf.Timestamp creation_time = 3;
-    // add more fields like sender, timestamp, etc. 
+  string message_id = 1;
+  string text = 2;
+  string sender = 3;
+  string creation_time = 4;
+  optional FileAttachment file_attachment = 5;
+  int32 likes = 6;                  
+  repeated Comment comments = 7;  
+  bool liked_by_user = 8;
+}
+
+message FileAttachment {
+  string file_name = 1;
+  bytes file_data = 2;
+  string file_type = 3;
+  string file_data_id = 4;
+}
+
+message Comment {
+  string username = 1;
+  string text = 2;
 }
 
 message GetMessagesRequest {
-    int32 n = 1;
+  int32 n = 1;
+  string username = 2;
 }
 
 message GetMessagesResponse {
-    repeated Message messages = 1;
+  repeated Message messages = 1;
 }
 
-service MiniTwitter {
-    rpc SendMessage(Message) returns (google.protobuf.Empty);
-    rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
+message GetAttachmentsRequest {
+  string attachment_id = 1;
+}
+
+message GetAttachmentsResponse {
+  FileAttachment attachments = 1;
+}
+
+message AddLikeRequest {
+  string message_id = 1;
+  string username = 2;
+}
+
+message AddLikeResponse {
+  int32 likes = 1;
+}
+
+message AddCommentRequest {
+  string message_id = 1;
+  string username = 2;
+  string text = 3;
+}
+
+message GetLikesResponse {
+  repeated string liked_message_ids = 1;
+}
+
+message GetLikesRequest {
+  string username = 1;
+}
+
+message AddCommentResponse {
+  string username = 1;
+  string text = 2;
+}
+
+message GetCommentsResponse {
+  repeated Comment comments = 1;
+}
+
+message GetCommentsRequest {
+  string message_id = 1;
+}
+
+message RegisterRequest {
+  string username = 1;
+  string password = 2;
+  optional FileAttachment profile_picture = 3;
 }

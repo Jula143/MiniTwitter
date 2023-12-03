@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    {% if not session.logged_in %}
+        <div class="header">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Mini Twitter Logo" class="logo">
+        </div>
+        <div class="container">
+            
+            <!-- create a button for login and for signup form to show after click and hide the forms until click -->
+            <button class="login-button" onclick="showLoginForm()">Log In</button>
+            <button class="signup-button" onclick="showSignupForm()">Sign Up</button>
+            
+            <!-- Hide The forms until click of button -->
+            <form class="login-form" action="/login" method="post" style="display: none;">
+                <!-- login form fields -->
+            </form>
+            
+            <form class="signup-form" action="/register" method="post" style="display: none;">
+                <!-- signup form fields -->
+            </form>
+        </div>
+    {% else %}
+    <div class="header">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Mini Twitter Logo" class="logo">
+        <a href="/">Home</a>
+        <a href="#">Notifications</a>
+        <a href="#">Messages</a>
+        <div class="user-profile" onclick="toggleDropdown()">
+            <img src="{{ url_for('static', filename=session.user_profile_picture or 'default_profile.png') }}" alt="Profile Picture" class="profile-picture">
+            <span class="username">{{ session.username }}</span>
+            <div class="dropdown" id="profileDropdown">
+                <a href="{{ url_for('load_profile', username=session.username) }}">Profile</a>
+                <a href="/logout">Logout</a>
+            </div>
+        </div>
+    </div>
+        <!-- Display user profile information -->
+        <div class="profile-page">
+            <div class="user-profile-page">
+                <img src="{{ url_for('static', filename=session.user_profile_picture or 'default_profile.png') }}" alt="Profile Picture" class="profile-picture-page">
+                <span class="username-page">{{ session.username }}</span>
+            </div>
+        </div>
+        
+    {% endif %}
+    <script>
+        function toggleDropdown() {
+            // Toggle the dropdown
+            $(".dropdown").toggle();
+        }
+
+        // Close the dropdown when clicking outside of it
+        $(document).on("click", function (event) {
+            if (!$(event.target).closest(".user-profile").length) {
+                $(".dropdown").hide();
+            }
+        });
+    </script>
+</body>
+</html>

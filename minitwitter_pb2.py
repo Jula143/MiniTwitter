@@ -12,22 +12,47 @@ _sym_db = _symbol_database.Default()
 
 
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
-from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11minitwitter.proto\x12\x0e\x63lient_message\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"Z\n\x07Message\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x0e\n\x06sender\x18\x02 \x01(\t\x12\x31\n\rcreation_time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x1f\n\x12GetMessagesRequest\x12\t\n\x01n\x18\x01 \x01(\x05\"@\n\x13GetMessagesResponse\x12)\n\x08messages\x18\x01 \x03(\x0b\x32\x17.client_message.Message2\xa5\x01\n\x0bMiniTwitter\x12>\n\x0bSendMessage\x12\x17.client_message.Message\x1a\x16.google.protobuf.Empty\x12V\n\x0bGetMessages\x12\".client_message.GetMessagesRequest\x1a#.client_message.GetMessagesResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11minitwitter.proto\x12\x0bminitwitter\x1a\x1bgoogle/protobuf/empty.proto\"\xef\x01\n\x07Message\x12\x12\n\nmessage_id\x18\x01 \x01(\t\x12\x0c\n\x04text\x18\x02 \x01(\t\x12\x0e\n\x06sender\x18\x03 \x01(\t\x12\x15\n\rcreation_time\x18\x04 \x01(\t\x12\x39\n\x0f\x66ile_attachment\x18\x05 \x01(\x0b\x32\x1b.minitwitter.FileAttachmentH\x00\x88\x01\x01\x12\r\n\x05likes\x18\x06 \x01(\x05\x12&\n\x08\x63omments\x18\x07 \x03(\x0b\x32\x14.minitwitter.Comment\x12\x15\n\rliked_by_user\x18\x08 \x01(\x08\x42\x12\n\x10_file_attachment\"_\n\x0e\x46ileAttachment\x12\x11\n\tfile_name\x18\x01 \x01(\t\x12\x11\n\tfile_data\x18\x02 \x01(\x0c\x12\x11\n\tfile_type\x18\x03 \x01(\t\x12\x14\n\x0c\x66ile_data_id\x18\x04 \x01(\t\")\n\x07\x43omment\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x0c\n\x04text\x18\x02 \x01(\t\"1\n\x12GetMessagesRequest\x12\t\n\x01n\x18\x01 \x01(\x05\x12\x10\n\x08username\x18\x02 \x01(\t\"=\n\x13GetMessagesResponse\x12&\n\x08messages\x18\x01 \x03(\x0b\x32\x14.minitwitter.Message\".\n\x15GetAttachmentsRequest\x12\x15\n\rattachment_id\x18\x01 \x01(\t\"J\n\x16GetAttachmentsResponse\x12\x30\n\x0b\x61ttachments\x18\x01 \x01(\x0b\x32\x1b.minitwitter.FileAttachment\"6\n\x0e\x41\x64\x64LikeRequest\x12\x12\n\nmessage_id\x18\x01 \x01(\t\x12\x10\n\x08username\x18\x02 \x01(\t\" \n\x0f\x41\x64\x64LikeResponse\x12\r\n\x05likes\x18\x01 \x01(\x05\"G\n\x11\x41\x64\x64\x43ommentRequest\x12\x12\n\nmessage_id\x18\x01 \x01(\t\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x0c\n\x04text\x18\x03 \x01(\t\"-\n\x10GetLikesResponse\x12\x19\n\x11liked_message_ids\x18\x01 \x03(\t\"#\n\x0fGetLikesRequest\x12\x10\n\x08username\x18\x01 \x01(\t\"4\n\x12\x41\x64\x64\x43ommentResponse\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x0c\n\x04text\x18\x02 \x01(\t\"=\n\x13GetCommentsResponse\x12&\n\x08\x63omments\x18\x01 \x03(\x0b\x32\x14.minitwitter.Comment\"(\n\x12GetCommentsRequest\x12\x12\n\nmessage_id\x18\x01 \x01(\t\"\x84\x01\n\x0fRegisterRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\x12\x39\n\x0fprofile_picture\x18\x03 \x01(\x0b\x32\x1b.minitwitter.FileAttachmentH\x00\x88\x01\x01\x42\x12\n\x10_profile_picture2\xd9\x04\n\x0bMiniTwitter\x12;\n\x0bSendMessage\x12\x14.minitwitter.Message\x1a\x16.google.protobuf.Empty\x12P\n\x0bGetMessages\x12\x1f.minitwitter.GetMessagesRequest\x1a .minitwitter.GetMessagesResponse\x12X\n\rGetAttachment\x12\".minitwitter.GetAttachmentsRequest\x1a#.minitwitter.GetAttachmentsResponse\x12>\n\x07\x41\x64\x64Like\x12\x1b.minitwitter.AddLikeRequest\x1a\x16.google.protobuf.Empty\x12\x44\n\nAddComment\x12\x1e.minitwitter.AddCommentRequest\x1a\x16.google.protobuf.Empty\x12G\n\x08GetLikes\x12\x1c.minitwitter.GetLikesRequest\x1a\x1d.minitwitter.GetLikesResponse\x12P\n\x0bGetComments\x12\x1f.minitwitter.GetCommentsRequest\x1a .minitwitter.GetCommentsResponse\x12@\n\x08Register\x12\x1c.minitwitter.RegisterRequest\x1a\x16.google.protobuf.Emptyb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'minitwitter_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_MESSAGE']._serialized_start=99
-  _globals['_MESSAGE']._serialized_end=189
-  _globals['_GETMESSAGESREQUEST']._serialized_start=191
-  _globals['_GETMESSAGESREQUEST']._serialized_end=222
-  _globals['_GETMESSAGESRESPONSE']._serialized_start=224
-  _globals['_GETMESSAGESRESPONSE']._serialized_end=288
-  _globals['_MINITWITTER']._serialized_start=291
-  _globals['_MINITWITTER']._serialized_end=456
+  _globals['_MESSAGE']._serialized_start=64
+  _globals['_MESSAGE']._serialized_end=303
+  _globals['_FILEATTACHMENT']._serialized_start=305
+  _globals['_FILEATTACHMENT']._serialized_end=400
+  _globals['_COMMENT']._serialized_start=402
+  _globals['_COMMENT']._serialized_end=443
+  _globals['_GETMESSAGESREQUEST']._serialized_start=445
+  _globals['_GETMESSAGESREQUEST']._serialized_end=494
+  _globals['_GETMESSAGESRESPONSE']._serialized_start=496
+  _globals['_GETMESSAGESRESPONSE']._serialized_end=557
+  _globals['_GETATTACHMENTSREQUEST']._serialized_start=559
+  _globals['_GETATTACHMENTSREQUEST']._serialized_end=605
+  _globals['_GETATTACHMENTSRESPONSE']._serialized_start=607
+  _globals['_GETATTACHMENTSRESPONSE']._serialized_end=681
+  _globals['_ADDLIKEREQUEST']._serialized_start=683
+  _globals['_ADDLIKEREQUEST']._serialized_end=737
+  _globals['_ADDLIKERESPONSE']._serialized_start=739
+  _globals['_ADDLIKERESPONSE']._serialized_end=771
+  _globals['_ADDCOMMENTREQUEST']._serialized_start=773
+  _globals['_ADDCOMMENTREQUEST']._serialized_end=844
+  _globals['_GETLIKESRESPONSE']._serialized_start=846
+  _globals['_GETLIKESRESPONSE']._serialized_end=891
+  _globals['_GETLIKESREQUEST']._serialized_start=893
+  _globals['_GETLIKESREQUEST']._serialized_end=928
+  _globals['_ADDCOMMENTRESPONSE']._serialized_start=930
+  _globals['_ADDCOMMENTRESPONSE']._serialized_end=982
+  _globals['_GETCOMMENTSRESPONSE']._serialized_start=984
+  _globals['_GETCOMMENTSRESPONSE']._serialized_end=1045
+  _globals['_GETCOMMENTSREQUEST']._serialized_start=1047
+  _globals['_GETCOMMENTSREQUEST']._serialized_end=1087
+  _globals['_REGISTERREQUEST']._serialized_start=1090
+  _globals['_REGISTERREQUEST']._serialized_end=1222
+  _globals['_MINITWITTER']._serialized_start=1225
+  _globals['_MINITWITTER']._serialized_end=1826
 # @@protoc_insertion_point(module_scope)

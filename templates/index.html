@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mini Twitter</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    {% if not session.logged_in %}
+    <div class="header">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Mini Twitter Logo" class="logo">
+    </div>
+    <div class="container">
+        
+        <!--create a button for login and for signup form to show after click and hide the forms until click-->
+        <button class="login-button" onclick="showLoginForm()">Log In</button>
+        <button class="signup-button" onclick="showSignupForm()">Sign Up</button>
+        <!--Hide The forms until click of button-->
+
+        <form class="login-form" action="/login" method="post" style="display: none;">
+            <label for="username">Username:</label>
+            <input type="text" name="username" required>
+            <label for="password">Password:</label>
+            <input type="text" name="password" required>
+            <input type="submit" value="Log In">
+        </form>
+        <form class="signup-form" action="/register" method="post" style="display: none;" enctype="multipart/form-data">
+            <label for="username">Username:</label>
+            <input type="text" name="username" required>
+            <label for="password">Password:</label>
+            <input type="text" name="password" required>
+            <label for="password">Confirm Password:</label>
+            <input type="text" name="confirm_password" required>
+            <label for="profile_picture">Profile Picture:</label>
+            <input type="file" name="profile_picture" accept="image/*">
+            <input type="submit" value="Sign Up">
+        </form>
+    </div>
+    {% else %}
+    <div class="header">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Mini Twitter Logo" class="logo">
+        <a href="#">Home</a>
+        <a href="#">Notifications</a>
+        <a href="#">Messages</a>
+        <div class="user-profile" onclick="toggleDropdown()">
+            <img src="{{ url_for('static', filename=session.user_profile_picture or 'default_profile.png') }}" alt="Profile Picture" class="profile-picture">
+            <span class="username">{{ session.username }}</span>
+            <div class="dropdown" id="profileDropdown">
+                <a href="{{ url_for('load_profile', username=session.username) }}">Profile</a>
+                <a href="/logout">Logout</a>
+            </div>
+        </div>
+    </div>
+    <div class="container">  
+        <form class="tweet-box" action="/send" method="post" enctype="multipart/form-data">
+            <input type="text" name="message" placeholder="What's happening?" required>
+            <div class="button-container">
+                <button class="tweet-button" type="submit">Tweet</button>
+                <div class="attachment-container">
+                    <input type="file" id="fileInput" name="file" accept="image/*, video/*" style="display: none;" onchange="updateAttachmentLabel()">
+                    <label for="fileInput" class="attachments-button">
+                        <i class="fas fa-paperclip"></i>
+                    </label>
+                    <span id="fileName" class="file-name"></span>
+                </div>
+            </div>
+        </form>
+            <div class="message-list">
+                {% for message in messages %}
+                    <div class="tweet" data-message-id="{{ message.message_id }}">
+                        <div class="message-header">
+                            <span class="message-sender">{{ message.sender }}</span>
+                            <span class="message-time">{{ message.creation_time }}</span>
+                        </div>
+                        <div class="message-text">{{ message.text }}</div>
+                        <div class="message-file">
+                            {% if message.file_attachment %}
+                                {% if message.file_attachment.file_type.startswith('image/') %}
+                                    <img src="{{ url_for('serve_attachment', attachment_id=message.file_attachment.file_data_id) }}" alt="Image">
+                                {% elif message.file_attachment.file_type.startswith('video/') %}
+                                    <video controls>
+                                        <source src="{{ url_for('serve_attachment', attachment_id=message.file_attachment.file_data_id) }}" type="{{ message.file_attachment.file_type }}">
+                                    </video>
+                                {% elif message.file_attachment.file_type.startswith('audio/') %}
+                                    <audio controls>
+                                        <source src="{{ url_for('serve_attachment', attachment_id=message.file_attachment.file_data_id) }}" type="{{ message.file_attachment.file_type }}">
+                                    </audio>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                            <div class="message-footer">
+                                <div class="like-comment-section">
+                                    <div class="like-button">
+                                        {% if session.logged_in %}
+                                            <a href="{{ url_for('like', message_id=message.message_id) }}" class="like-link">
+                                                {% if message.liked_by_user %}
+                                                    <i class="fas fa-heart liked"></i>
+                                                {% else %}
+                                                    <i class="far fa-heart"></i>
+                                                {% endif %}
+                                            </a>
+                                        {% endif %}
+                                        <span class="like-count">{{ message.likes }}</span>
+                                    </div>
+                                    <div id="overlay" class="overlay"></div>
+                                    <div class="comment-section">
+                                        <span class="comment-count">{{ message.comments | length }}</span>
+                                        <button class="open-comments-btn" onclick="openCommentsModal('{{ message.message_id }}')">
+                                            <i class="far fa-comment"></i>
+                                        </button>
+                                
+                                        <!-- Hidden comments modal -->
+                                        <div id="commentsModal_{{ message.message_id }}" class="modal">
+                                            <div class="modal-content">
+                                                <div class="message-text">{{ message.text }}</div>
+                                                <div class="message-file">
+                                                    {% if message.file_attachment %}
+                                                        {% if message.file_attachment.file_type.startswith('image/') %}
+                                                            <img src="{{ url_for('serve_attachment', attachment_id=message.file_attachment.file_data_id) }}" alt="Image">
+                                                        {% elif message.file_attachment.file_type.startswith('video/') %}
+                                                            <video controls>
+                                                                <source src="{{ url_for('serve_attachment', attachment_id=message.file_attachment.file_data_id) }}" type="{{ message.file_attachment.file_type }}">
+                                                            </video>
+                                                        {% elif message.file_attachment.file_type.startswith('audio/') %}
+                                                            <audio controls>
+                                                                <source src="{{ url_for('serve_attachment', attachment_id=message.file_attachment.file_data_id) }}" type="{{ message.file_attachment.file_type }}">
+                                                            </audio>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </div>
+                                                <div class="like-button">
+                                                    {% if session.logged_in %}
+                                                        <a href="{{ url_for('like', message_id=message.message_id) }}" class="like-link">
+                                                            {% if message.liked_by_user %}
+                                                                <i class="fas fa-heart liked"></i>
+                                                            {% else %}
+                                                                <i class="far fa-heart"></i>
+                                                            {% endif %}
+                                                        </a>
+                                                    {% endif %}
+                                                    <span class="like-count">{{ message.likes }}</span>
+                                                </div>
+                                
+                                                
+                                                <form action="{{ url_for('comment', message_id=message.message_id) }}" method="post">
+                                                    <input class = "comment-textarea" type="text" name="comment_text" placeholder="Add a comment..." required>
+                                                    <button class="comment-modal-btn" type="submit">Comment</button>
+                                                </form>
+                                
+                                                
+                                                <ul class="comments">
+                                                    {% for comment in message.comments %}
+                                                        <li><strong>{{ comment.username }}</strong>: {{ comment.text }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="online-users">
+                Online Users:  <span id="online-user-count">0</span>
+            </div>
+    </div>
+    
+    <script>
+        const eventSource = new EventSource("/stream");
+
+        eventSource.onmessage = (event) => {
+            const userCount = parseInt(event.data);
+            document.getElementById("online-user-count").textContent = userCount;
+        };
+    </script>
+    <script>
+        function openCommentsModal(messageId) {
+            const modal = document.getElementById('commentsModal_' + messageId);
+            const overlay = document.getElementById('overlay');
+    
+            modal.style.display = 'block';
+            overlay.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent scrolling on the body
+    
+            // Close the modal if the user clicks outside of it
+            overlay.onclick = function () {
+                modal.style.display = 'none';
+                overlay.style.display = 'none';
+                document.body.style.overflow = 'auto'; // Allow scrolling on the body
+            }
+        }
+    </script>
+    <script>
+        function showLoginForm() {
+            const loginForm = document.querySelector('.login-form');
+            const signupForm = document.querySelector('.signup-form');
+            const loginButton = document.querySelector('.login-button');
+            const signupButton = document.querySelector('.signup-button');
+
+    
+            loginForm.style.display = 'block';
+            signupForm.style.display = 'none';
+            loginButton.style.display = 'none';
+            signupButton.style.display = 'none';
+        }
+        function showSignupForm() {
+            const loginForm = document.querySelector('.login-form');
+            const signupForm = document.querySelector('.signup-form');
+            const loginButton = document.querySelector('.login-button');
+            const signupButton = document.querySelector('.signup-button');
+    
+            loginForm.style.display = 'none';
+            signupForm.style.display = 'block';
+            loginButton.style.display = 'none';
+            signupButton.style.display = 'none';
+        }
+    </script>
+    <script>
+        $(document).ready(function () {
+            // Use event delegation to handle dynamically added elements
+            let currentMessageId; // Variable to store the current message ID
+
+            // Use event delegation to handle dynamically added elements
+            $('.message-list').on('click', '.like-link', function (e) {
+                e.preventDefault();
+
+                // Get the URL for liking the message
+                const likeUrl = $(this).attr('href');
+
+                // Use the stored message ID or find it from the clicked element
+                const messageId = currentMessageId || $(this).closest('.tweet').data('message-id');
+
+                // Make an AJAX request to like the message
+                $.ajax({
+                    type: 'GET',
+                    url: likeUrl,
+                    cache: false,
+                    success: function (data) {
+                        const likeCountElement = $('.message-list').find(`[data-message-id="${messageId}"]`).find('.like-count');
+                        const heartIcon = $('.message-list').find(`[data-message-id="${messageId}"]`).find('.like-button i');
+                        likeCountElement.text(data.likes);
+                        updateLikeStatus(heartIcon, data.liked_by_user);
+
+                        // Update the like button and count in the modal
+                        const modalLikeCountElement = $('#commentsModal_' + messageId).find('.like-count');
+                        const modalHeartIcon = $('#commentsModal_' + messageId).find('.like-button i');
+                        modalLikeCountElement.text(data.likes);
+                        updateLikeStatus(modalHeartIcon, data.liked_by_user);
+
+                        // Clear the stored message ID
+                        currentMessageId = null;
+                    },
+                    error: function (error) {
+                        console.error('Error liking message:', error);
+                    }
+                });
+            });
+
+
+            // Function to update like status (far or fas) based on the server response
+            function updateLikeStatus(heartIcon, liked_by_user) {
+                if (heartIcon.length > 0) {
+                    if (liked_by_user) {
+                        heartIcon.removeClass('far fa-heart').addClass('fas fa-heart liked');
+                    } else {
+                        heartIcon.removeClass('fas fa-heart liked').addClass('far fa-heart');
+                    }
+                } else {
+                    console.error('Heart icon not found!');
+                }
+            }
+            $('.message-list').on('submit', 'form', function (e) {
+                e.preventDefault();
+
+                const commentForm = $(this);
+                const commentUrl = commentForm.attr('action');
+                const commentText = commentForm.find('.comment-textarea').val();
+                
+                $.ajax({
+                    type: 'POST',
+                    url: commentUrl,
+                    data: { comment_text: commentText },
+                    cache: false,
+                    success: function (data) {
+                        const messageId = data.message_id;
+                        console.log('Comment form submitted:', commentText, messageId);
+                        console.log('Comment added successfully:', data);
+
+                        const commentsContainer = $('#commentsModal_' + messageId).find('.comments');
+
+                        commentsContainer.empty();
+                        
+                        data.comments.forEach(comment => {
+                            const newComment = `<li><strong>${comment.username}</strong>: ${comment.text}</li>`;
+                            commentsContainer.append(newComment);
+                        });
+
+                        commentForm.find('.comment-textarea').val('');
+
+                        // Optionally, update the comment count in the UI
+                        const commentCountElement = $(e.target).closest('.comment-section').find('.comment-count');
+                        const newCommentCount = data.comments.length;
+                        commentCountElement.text(newCommentCount);
+                    },
+                    error: function (error) {
+                        console.error('Error adding comment:', error);
+                    }
+                });
+            });
+        });
+    </script>
+    <script>
+        function updateAttachmentLabel() {
+            const fileInput = document.getElementById('fileInput');
+            const fileNameLabel = document.getElementById('fileName');
+
+            if (fileInput.files.length > 0) {
+                fileNameLabel.textContent = fileInput.files[0].name;
+            } else {
+                fileNameLabel.textContent = '';
+            }
+        }
+    </script>
+    <script>
+        function toggleDropdown() {
+            // Toggle the dropdown
+            $(".dropdown").toggle();
+        }
+
+        // Close the dropdown when clicking outside of it
+        $(document).on("click", function (event) {
+            if (!$(event.target).closest(".user-profile").length) {
+                $(".dropdown").hide();
+            }
+        });
+    </script>
+</body>
+</html>
