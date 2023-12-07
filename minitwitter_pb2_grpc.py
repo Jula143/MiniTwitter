@@ -55,6 +55,11 @@ class MiniTwitterStub(object):
                 request_serializer=minitwitter__pb2.RegisterRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
+        self.GetProfile = channel.unary_unary(
+                '/minitwitter.MiniTwitter/GetProfile',
+                request_serializer=minitwitter__pb2.ProfilePictureRequest.SerializeToString,
+                response_deserializer=minitwitter__pb2.ProfilePictureResponse.FromString,
+                )
 
 
 class MiniTwitterServicer(object):
@@ -108,6 +113,12 @@ class MiniTwitterServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetProfile(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_MiniTwitterServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -150,6 +161,11 @@ def add_MiniTwitterServicer_to_server(servicer, server):
                     servicer.Register,
                     request_deserializer=minitwitter__pb2.RegisterRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            ),
+            'GetProfile': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetProfile,
+                    request_deserializer=minitwitter__pb2.ProfilePictureRequest.FromString,
+                    response_serializer=minitwitter__pb2.ProfilePictureResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -294,5 +310,22 @@ class MiniTwitter(object):
         return grpc.experimental.unary_unary(request, target, '/minitwitter.MiniTwitter/Register',
             minitwitter__pb2.RegisterRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetProfile(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/minitwitter.MiniTwitter/GetProfile',
+            minitwitter__pb2.ProfilePictureRequest.SerializeToString,
+            minitwitter__pb2.ProfilePictureResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -18,6 +18,29 @@ class MiniTwitterServicer(minitwitter_pb2_grpc.MiniTwitterServicer):
         self.likes = {} 
         self.comments = {}
 
+    def GetProfilePicture(self, request, context):
+        username = request.username
+        client = MongoClient("mongodb://localhost:27017")
+        db = client["minitwitter"]
+        collection = db["users"]
+
+        profile_picture = collection.find_one({"username": username}, {"profile_picture": 1})
+
+        if profile_picture:
+            file_attachment = profile_picture["profile_picture"]
+            if "fileName" in file_attachment and "fileDataId" in file_attachment and "fileType" in file_attachment:
+                file_data_id = ObjectId(file_attachment["fileDataId"])
+                file_data = fs.get(file_data_id).read()
+                profile_picture = minitwitter_pb2.FileAttachment(
+                    file_name=file_attachment["fileName"],
+                    file_data=file_data,
+                    file_type=file_attachment["fileType"],
+                    file_data_id=str(file_data_id)
+                )
+            client.close()
+            return minitwitter_pb2.ProfilePictureResponse(profile_picture=profile_picture)
+
+
     def SendMessage(self, request, context):
         message_id = request.message_id
         message = request.text

@@ -4,3 +4,5 @@ grpcio==1.59.2
 protobuf==4.25.0
 pymongo==4.6.0
 Werkzeug==3.0.0
+grpcio-tools==1.59.2
+

@@ -148,6 +148,11 @@ def register_user(username, password, profile_picture):
         online_users.add(username)
     return redirect(url_for('home'))
 
+def get_profile_picture(username):
+    profile_picture = stub.GetProfile(minitwitter_pb2.ProfilePictureRequest(username=username))
+    profile_picture = profile_picture.profile_picture
+    return profile_picture
+
 @app.route('/register', methods=['POST'])
 def register():
     username = request.form['username']
@@ -178,8 +183,10 @@ def logout():
 def load_profile(username):
     #find user in database
     user = mongo.db.users.find_one({"username": username})
+    profile_picture = get_profile_picture(username)
+    
     #load profile page
-    return render_template('profile.html', username=username)
+    return render_template('profile.html', username=username, profile_picture=profile_picture)
 @app.route('/send', methods=['POST'])
 def send():
     if 'logged_in' in session:
@@ -190,4 +197,4 @@ def send():
     return redirect(url_for('home'))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5001)

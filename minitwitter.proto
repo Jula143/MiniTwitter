@@ -13,6 +13,7 @@ service MiniTwitter {
   rpc GetLikes(GetLikesRequest) returns (GetLikesResponse);
   rpc GetComments(GetCommentsRequest) returns (GetCommentsResponse);
   rpc Register(RegisterRequest) returns (google.protobuf.Empty);
+  rpc GetProfile(ProfilePictureRequest) returns (ProfilePictureResponse);
 }
 
 message Message {
@@ -95,4 +96,12 @@ message RegisterRequest {
   string username = 1;
   string password = 2;
   optional FileAttachment profile_picture = 3;
+}
+
+message ProfilePictureRequest {
+  string username = 1;
+}
+
+message ProfilePictureResponse {
+  optional FileAttachment profile_picture = 1;
 }
