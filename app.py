@@ -148,10 +148,16 @@ def register_user(username, password, profile_picture):
         online_users.add(username)
     return redirect(url_for('home'))
 
+@app.route('/profile_picture/<username>')
 def get_profile_picture(username):
     profile_picture = stub.GetProfile(minitwitter_pb2.ProfilePictureRequest(username=username))
     profile_picture = profile_picture.profile_picture
-    return profile_picture
+    if not profile_picture:
+        print(404)
+    response = make_response(profile_picture.file_data)
+    response.headers["Content-Type"] = profile_picture.file_type
+    return response
+
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -164,7 +170,6 @@ def register():
         flash('You are already registered, please log in')
         return render_template('index.html')
     profile_picture = request.files.get('profile_picture')
-    print(profile_picture)
     
     if password == confirm_password:
         register_user(username, password, profile_picture)
@@ -183,10 +188,8 @@ def logout():
 def load_profile(username):
     #find user in database
     user = mongo.db.users.find_one({"username": username})
-    profile_picture = get_profile_picture(username)
-    
     #load profile page
-    return render_template('profile.html', username=username, profile_picture=profile_picture)
+    return render_template('profile.html', username=username)
 @app.route('/send', methods=['POST'])
 def send():
     if 'logged_in' in session:

@@ -103,5 +103,5 @@ message ProfilePictureRequest {
 }
 
 message ProfilePictureResponse {
-  optional FileAttachment profile_picture = 1;
+  FileAttachment profile_picture = 1;
 }

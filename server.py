@@ -18,28 +18,64 @@ class MiniTwitterServicer(minitwitter_pb2_grpc.MiniTwitterServicer):
         self.likes = {} 
         self.comments = {}
 
-    def GetProfilePicture(self, request, context):
+    def GetProfile(self, request, context):
         username = request.username
         client = MongoClient("mongodb://localhost:27017")
         db = client["minitwitter"]
         collection = db["users"]
 
-        profile_picture = collection.find_one({"username": username}, {"profile_picture": 1})
+        #create a user defualt profile picture and add the /static/default_profile_picture.png to the db
+        if collection.find_one({"username": 'default_profile'}) == None:
+            default_profile_picture = open('static/default_profile.png', 'rb')
+            file_id = fs.put(default_profile_picture, filename='default_profile_picture.png', content_type='image/png')
+            file_data_id = ObjectId(file_id)
+            default_profile_picture = minitwitter_pb2.FileAttachment(
+                file_name='default_profile_picture.png',
+                file_type='image/png',
+                file_data_id=str(file_data_id)
+            )
+            db.users.insert_one({
+                "username": 'default_profile',
+                "password": 'default_profile',
+                "profile_picture": MessageToDict(default_profile_picture) if default_profile_picture else None
+            })
 
-        if profile_picture:
+        profile_picture = collection.find_one({"username": username}, {"profile_picture": 1})
+        if "fileName" in profile_picture["profile_picture"]:
+            file_attachment_new = None
             file_attachment = profile_picture["profile_picture"]
             if "fileName" in file_attachment and "fileDataId" in file_attachment and "fileType" in file_attachment:
                 file_data_id = ObjectId(file_attachment["fileDataId"])
                 file_data = fs.get(file_data_id).read()
-                profile_picture = minitwitter_pb2.FileAttachment(
+                file_attachment_new = minitwitter_pb2.FileAttachment(
                     file_name=file_attachment["fileName"],
                     file_data=file_data,
                     file_type=file_attachment["fileType"],
                     file_data_id=str(file_data_id)
                 )
             client.close()
-            return minitwitter_pb2.ProfilePictureResponse(profile_picture=profile_picture)
-
+            
+            return minitwitter_pb2.ProfilePictureResponse(profile_picture=file_attachment_new)
+        else:
+            #send the default profile picture
+            file_attachment_new = None
+            profile_picture = collection.find_one({"username": 'default_profile'}, {"profile_picture": 1})
+            file_attachment = profile_picture["profile_picture"]
+            if "fileName" in file_attachment and "fileDataId" in file_attachment and "fileType" in file_attachment:
+                file_data_id = ObjectId(file_attachment["fileDataId"])
+                file_data = fs.get(file_data_id).read()
+                #create a new file attachment skeleton called file_attachment_new
+                file_attachment_new = minitwitter_pb2.FileAttachment(
+                    file_name=file_attachment["fileName"],
+                    file_data=file_data,
+                    file_type=file_attachment["fileType"],
+                    file_data_id=str(file_data_id)
+                )
+            client.close()
+            
+            return minitwitter_pb2.ProfilePictureResponse(profile_picture=file_attachment_new)
+            
+            
 
     def SendMessage(self, request, context):
         message_id = request.message_id

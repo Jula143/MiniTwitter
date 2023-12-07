@@ -35,7 +35,7 @@
         <a href="#">Notifications</a>
         <a href="#">Messages</a>
         <div class="user-profile" onclick="toggleDropdown()">
-            <img src="{{ url_for('static', session.profile_picture or 'default_profile.png') }}" alt="Profile Picture" class="profile-picture">
+            <img src="{{ url_for('get_profile_picture', username=session.username) }}" alt="Profile Picture" class="profile-picture">
             <span class="username">{{ session.username }}</span>
             <div class="dropdown" id="profileDropdown">
                 <a href="{{ url_for('load_profile', username=session.username) }}">Profile</a>
@@ -46,7 +46,7 @@
         <!-- Display user profile information -->
         <div class="profile-page">
             <div class="user-profile-page">
-                <img src="{{ url_for('static', session.profile_picture or 'default_profile.png') }}" alt="Profile Picture" class="profile-picture-page">
+                <img src="{{ url_for('get_profile_picture', username=session.username) }}" alt="Profile Picture" class="profile-picture-page">
                 <span class="username-page">{{ session.username }}</span>
             </div>
         </div>
