@@ -53,5 +53,5 @@ Follow these steps to set up and run the MiniTwitter project on your local machi
     ```
 
 ### Usage
-- Access the MiniTwitter web application by navigating to [http://localhost:5000/](http://localhost:5000/) in your web browser.
+- Access the MiniTwitter web application by navigating to [http://localhost:5001/](http://localhost:5001/) in your web browser.
 
